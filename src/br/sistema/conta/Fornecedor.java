@@ -9,19 +9,27 @@ public class Fornecedor {
         this.cnpj = cnpj;
     }
 
-	public String getNome() {
-		return nome;
-	}
+    public String getNome() {
+        return nome;
+    }
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-	public String getCnpj() {
-		return cnpj;
-	}
+    public String getCnpj() {
+        return cnpj;
+    }
 
-	public void setCnpj(String cnpj) {
-		this.cnpj = cnpj;
-	}
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Fornecedor f) {
+            return this.cnpj.equals(f.cnpj);
+        }
+        return false;
+    }
 }

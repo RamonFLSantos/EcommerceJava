@@ -1,20 +1,15 @@
 package br.sistema.menu;
 
-import br.sistema.conta.Estoque;
-import br.sistema.conta.Fornecedor;
-import br.sistema.conta.Produto;
+import br.sistema.conta.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Menu {
-    private Estoque estoque;
+    private Loja loja;
     private Scanner scanner;
-    private List<Fornecedor> fornecedores = new ArrayList<>();
 
-    public Menu(Estoque estoque) {
-        this.estoque = estoque;
+    public Menu(Loja loja) {
+        this.loja = loja;
         this.scanner = new Scanner(System.in);
     }
 
@@ -60,6 +55,11 @@ public class Menu {
         System.out.print("Nome do Produto: ");
         String nome = scanner.nextLine();
 
+        Produto produto = new Produto(nome);
+        loja.adicionarProduto(produto);
+
+        Fornecedor fornecedor = selecionarOuCriarFornecedor();
+
         System.out.print("Preço: ");
         double preco = scanner.nextDouble();
 
@@ -67,60 +67,57 @@ public class Menu {
         int quantidade = scanner.nextInt();
         scanner.nextLine();
 
-        Fornecedor fornecedor = selecionarOuCriarFornecedor();
-        Produto produto = new Produto(nome, preco, quantidade, fornecedor);
-
-        estoque.adicionarProduto(produto);
+        ItemFornecedorProduto item = new ItemFornecedorProduto(produto, fornecedor, preco, quantidade);
+        loja.adicionarItem(item);
 
         System.out.println("Produto adicionado com sucesso! Código: " + produto.getCodigo());
         System.out.print("\n\n");
     }
 
-
-    private void listarProdutos() {
-        for (Produto p : estoque.listarProdutos()) {
-            System.out.println("Produto: " + p.getNome() + " | Preço: R$" + p.getPreco() +
-                " | Quantidade: " + p.getQuantidade() +
-                " | Fornecedor: " + p.getFornecedor().getNome());
-            System.out.print("\n\n");
-        }
-    }
-    
     private Fornecedor selecionarOuCriarFornecedor() {
+        List<Fornecedor> lista = loja.getFornecedores();
         System.out.println("Fornecedores disponíveis:");
-        for (int i = 0; i < fornecedores.size(); i++) {
-            System.out.println((i + 1) + ". " + fornecedores.get(i).getNome() + " (" + fornecedores.get(i).getCnpj() + ")");
+        for (int i = 0; i < lista.size(); i++) {
+            System.out.println((i + 1) + ". " + lista.get(i).getNome() + " (" + lista.get(i).getCnpj() + ")");
         }
         System.out.println("0. Criar novo fornecedor");
         System.out.print("Escolha: ");
         int escolha = scanner.nextInt();
         scanner.nextLine();
 
-        if (escolha > 0 && escolha <= fornecedores.size()) {
-            return fornecedores.get(escolha - 1);
+        if (escolha > 0 && escolha <= lista.size()) {
+            return lista.get(escolha - 1);
         } else {
             System.out.print("Nome do novo fornecedor: ");
             String nome = scanner.nextLine();
             System.out.print("CNPJ do novo fornecedor: ");
             String cnpj = scanner.nextLine();
             Fornecedor novo = new Fornecedor(nome, cnpj);
-            fornecedores.add(novo);
+            loja.adicionarFornecedor(novo);
             return novo;
         }
     }
-    
+
+    private void listarProdutos() {
+        for (ItemFornecedorProduto item : loja.listarItens()) {
+            System.out.println("Código: " + item.getProduto().getCodigo() +
+                    " | Nome: " + item.getProduto().getNome() +
+                    " | Preço: R$" + item.getPreco() +
+                    " | Quantidade: " + item.getQuantidade() +
+                    " | Fornecedor: " + item.getFornecedor().getNome());
+        }
+    }
+
     private void alterarProduto() {
         System.out.print("Digite o código do produto: ");
         int codigo = scanner.nextInt();
         scanner.nextLine();
-        Produto p = estoque.buscarPorCodigo(codigo);
-        if (p != null) {
-            System.out.print("Novo nome: ");
-            p.setNome(scanner.nextLine());
+        ItemFornecedorProduto item = loja.buscarPorCodigo(codigo);
+        if (item != null) {
             System.out.print("Novo preço: ");
-            p.setPreco(scanner.nextDouble());
+            item.setPreco(scanner.nextDouble());
             System.out.print("Nova quantidade: ");
-            p.setQuantidade(scanner.nextInt());
+            item.setQuantidade(scanner.nextInt());
             scanner.nextLine();
             System.out.println("Produto atualizado.");
         } else {
@@ -132,7 +129,7 @@ public class Menu {
         System.out.print("Digite o código do produto: ");
         int codigo = scanner.nextInt();
         scanner.nextLine();
-        if (estoque.removerProduto(codigo)) {
+        if (loja.removerItem(codigo)) {
             System.out.println("Produto removido.");
         } else {
             System.out.println("Produto não encontrado.");
@@ -142,12 +139,15 @@ public class Menu {
     private void buscarPorNome() {
         System.out.print("Nome do produto: ");
         String nome = scanner.nextLine();
-        List<Produto> encontrados = estoque.buscarPorNome(nome);
+        List<ItemFornecedorProduto> encontrados = loja.buscarPorNome(nome);
         if (encontrados.isEmpty()) {
             System.out.println("Nenhum produto encontrado.");
         } else {
-            for (Produto p : encontrados) {
-                System.out.println(p.getCodigo() + " - " + p.getNome() + " - R$" + p.getPreco() + " - " + p.getFornecedor().getNome());
+            for (ItemFornecedorProduto item : encontrados) {
+                System.out.println("Código: " + item.getProduto().getCodigo() +
+                        " | Preço: R$" + item.getPreco() +
+                        " | Quantidade: " + item.getQuantidade() +
+                        " | Fornecedor: " + item.getFornecedor().getNome());
             }
         }
     }
@@ -156,13 +156,12 @@ public class Menu {
         System.out.print("Código do produto: ");
         int codigo = scanner.nextInt();
         scanner.nextLine();
-        Produto p = estoque.buscarPorCodigo(codigo);
-        if (p != null) {
-            System.out.println("Nome: " + p.getNome());
-            System.out.println("Preço: " + p.getPreco());
-            System.out.println("Quantidade: " + p.getQuantidade());
-            System.out.println("Fornecedor: " + p.getFornecedor().getNome());
-            System.out.print("\n\n");
+        ItemFornecedorProduto item = loja.buscarPorCodigo(codigo);
+        if (item != null) {
+            System.out.println("Nome: " + item.getProduto().getNome());
+            System.out.println("Preço: R$" + item.getPreco());
+            System.out.println("Quantidade: " + item.getQuantidade());
+            System.out.println("Fornecedor: " + item.getFornecedor().getNome());
         } else {
             System.out.println("Produto não encontrado.");
         }
@@ -170,12 +169,14 @@ public class Menu {
 
     private void listarPorFornecedor() {
         Fornecedor f = selecionarOuCriarFornecedor();
-        List<Produto> lista = estoque.buscarPorFornecedor(f);
+        List<ItemFornecedorProduto> lista = loja.buscarPorFornecedor(f);
         if (lista.isEmpty()) {
             System.out.println("Nenhum produto para este fornecedor.");
         } else {
-            for (Produto p : lista) {
-                System.out.println(p.getCodigo() + " - " + p.getNome());
+            for (ItemFornecedorProduto item : lista) {
+                System.out.println(item.getProduto().getCodigo() + " - " + item.getProduto().getNome() +
+                        " | Preço: R$" + item.getPreco() +
+                        " | Quantidade: " + item.getQuantidade());
             }
         }
     }
