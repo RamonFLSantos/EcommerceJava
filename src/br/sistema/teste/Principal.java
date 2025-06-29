@@ -1,7 +1,7 @@
 package br.sistema.teste;
 
 import br.sistema.conta.*;
-import br.sistema.menu.Menu;
+import br.sistema.menu.*;
 
 import java.util.Scanner;
 
@@ -9,32 +9,66 @@ public class Principal {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Loja loja = inicializarLojaComProdutos();
+        HistoricoCompras historico = new HistoricoCompras();
+        GerenciadorUsuarios gerenciadorUsuarios = new GerenciadorUsuarios();
 
-        System.out.println("Escolha o tipo de login:");
-        System.out.println("1 - Admin");
-        System.out.println("2 - Usuário");
-        System.out.print("Opção: ");
-        String tipo = scanner.nextLine();
+        while (true) {
+            System.out.println("\nEscolha uma opção:");
+            System.out.println("1 - Login como Admin");
+            System.out.println("2 - Login como Usuário");
+            System.out.println("3 - Cadastrar Novo Usuário");
+            System.out.println("0 - Sair do sistema");
+            System.out.print("Opção: ");
+            String tipo = scanner.nextLine();
 
-        switch (tipo) {
-            case "1" -> {
-                while (!Login.realizarLogin()) {
-                    System.out.println("Usuário ou senha incorretos. Tente novamente.\n");
+            switch (tipo) {
+                case "1" -> {
+                    while (!Login.realizarLogin()) {
+                        System.out.println("Usuário ou senha incorretos. Tente novamente.\n");
+                    }
+                    Menu menu = new Menu(loja);
+                    menu.exibirMenu();
                 }
-                Menu menu = new Menu(loja);
-                menu.exibirMenu();
+                case "2" -> {
+                    if (realizarLoginUsuario(scanner, gerenciadorUsuarios)) {
+                        MenuUsuario menuUsuario = new MenuUsuario(loja, historico);
+                        menuUsuario.exibirMenu();
+                    } else {
+                        System.out.println("Usuário ou senha incorretos.\n");
+                    }
+                }
+                case "3" -> {
+                    System.out.print("Novo login: ");
+                    String novoLogin = scanner.nextLine();
+                    System.out.print("Nova senha: ");
+                    String novaSenha = scanner.nextLine();
+                    boolean cadastrado = gerenciadorUsuarios.cadastrarUsuario(novoLogin, novaSenha);
+                    if (cadastrado) {
+                        System.out.println("Usuário cadastrado com sucesso!");
+                    } else {
+                        System.out.println("Usuário já existe.");
+                    }
+                }
+                case "0" -> {
+                    System.out.println("Encerrando o sistema...");
+                    return;
+                }
+                default -> System.out.println("Opção inválida.");
             }
-            case "2" -> {
-                System.out.println("Área do usuário ainda em desenvolvimento.");
-            }
-            default -> System.out.println("Opção inválida.");
         }
+    }
+
+    private static boolean realizarLoginUsuario(Scanner sc, GerenciadorUsuarios gUsuarios) {
+        System.out.print("Usuário: ");
+        String user = sc.nextLine();
+        System.out.print("Senha: ");
+        String senha = sc.nextLine();
+        return gUsuarios.realizarLogin(user, senha);
     }
 
     private static Loja inicializarLojaComProdutos() {
         Loja loja = new Loja();
-
-        Fornecedor fornecedor = new Fornecedor("Tecnologia LTDA", "12345678000199");
+        Fornecedor fornecedor = new Fornecedor("Fornecedor Padrão", "12345678000199");
         loja.adicionarFornecedor(fornecedor);
 
         Produto p1 = new Produto("Mouse Gamer");
@@ -48,5 +82,3 @@ public class Principal {
         return loja;
     }
 }
-
-
