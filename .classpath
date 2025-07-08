@@ -6,5 +6,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/ramon/OneDrive/Documentos/lib-jackson/jackson-annotations-2.15.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/ramon/OneDrive/Documentos/lib-jackson/jackson-core-2.15.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/ramon/OneDrive/Documentos/lib-jackson/jackson-databind-2.15.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ramon/Downloads/jackson-datatype-jsr310-2.15.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

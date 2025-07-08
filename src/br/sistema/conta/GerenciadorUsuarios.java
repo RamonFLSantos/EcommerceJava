@@ -1,23 +1,33 @@
 package br.sistema.conta;
 
-import java.util.ArrayList;
+import br.sistema.persistencia.PersistenciaUsuario;
 import java.util.List;
 
 public class GerenciadorUsuarios {
-    private List<Usuario> usuarios = new ArrayList<>();
+    private List<Usuario> usuarios;
 
     public GerenciadorUsuarios() {
-        // Conta padrão para testes
-        usuarios.add(new Usuario("user", "1234"));
+        usuarios = PersistenciaUsuario.carregarUsuarios();
+
+        // Garante o usuário padrão
+        Usuario padrao = new Usuario("user", "1234");
+        if (!usuarios.contains(padrao)) {
+            usuarios.add(padrao);
+            PersistenciaUsuario.salvarUsuarios(usuarios);
+        }
     }
 
     public boolean cadastrarUsuario(String login, String senha) {
-        Usuario novo = new Usuario(login, senha);
-        if (!usuarios.contains(novo)) {
-            usuarios.add(novo);
+        return cadastrarUsuario(new Usuario(login, senha));
+    }
+
+    public boolean cadastrarUsuario(Usuario usuario) {
+        if (!usuarios.contains(usuario)) {
+            usuarios.add(usuario);
+            PersistenciaUsuario.salvarUsuarios(usuarios);
             return true;
         }
-        return false; // Já existe
+        return false;
     }
 
     public boolean realizarLogin(String login, String senha) {
@@ -27,5 +37,9 @@ public class GerenciadorUsuarios {
             }
         }
         return false;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
     }
 }

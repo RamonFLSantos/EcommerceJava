@@ -2,6 +2,7 @@ package br.sistema.menu;
 
 import br.sistema.conta.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -32,6 +33,9 @@ public class MenuUsuario {
             System.out.println("8. Ver histórico de compras");
             System.out.println("9. Buscar compra por código");
             System.out.println("10. Buscar compra por data");
+            System.out.println("11. Cancelar Compra");
+            System.out.println("12. Remover item do carrinho");
+            System.out.println("13. Aumentar quantidade de item no carrinho");
             System.out.println("0. Sair");
             System.out.print("Escolha: ");
 
@@ -54,6 +58,9 @@ public class MenuUsuario {
                 case 8 -> verHistorico();
                 case 9 -> buscarCompraPorCodigo();
                 case 10 -> buscarCompraPorData();
+                case 11 -> cancelarCompra();
+                case 12 -> removerItemCarrinho();
+                case 13 -> aumentarQuantidadeCarrinho();
                 case 0 -> System.out.println("Saindo...");
                 default -> System.out.println("Opção inválida.");
             }
@@ -62,10 +69,11 @@ public class MenuUsuario {
 
     private void listarProdutos() {
         for (ItemFornecedorProduto item : loja.listarItens()) {
-            System.out.println(item.getProduto().getCodigo() + " - " + item.getProduto().getNome() +
-                " | Preço: R$" + item.getPreco() +
-                " | Quantidade: " + item.getQuantidade() +
-                " | Fornecedor: " + item.getFornecedor().getNome());
+        	String status = item.getQuantidade() == 0 ? "Indisponível" : item.getQuantidade() + " unidades";
+        	System.out.println(item.getProduto().getCodigo() + " - " + item.getProduto().getNome() +
+        	    " | Preço: R$" + item.getPreco() +
+        	    " | Quantidade: " + status +
+        	    " | Fornecedor: " + item.getFornecedor().getNome());
         }
     }
 
@@ -85,18 +93,23 @@ public class MenuUsuario {
     }
 
     private void buscarPorCodigo() {
-        System.out.print("Código: ");
-        int codigo = scanner.nextInt();
-        scanner.nextLine();
-        ItemFornecedorProduto item = loja.buscarPorCodigo(codigo);
-        if (item != null) {
-            System.out.println(item.getProduto().getNome() + " | R$" + item.getPreco() +
-                " | Qtd: " + item.getQuantidade() +
-                " | Fornecedor: " + item.getFornecedor().getNome());
-        } else {
-            System.out.println("Produto não encontrado.");
+        try {
+            System.out.print("Código: ");
+            int codigo = Integer.parseInt(scanner.nextLine());
+
+            ItemFornecedorProduto item = loja.buscarPorCodigo(codigo);
+            if (item != null) {
+                System.out.println(item.getProduto().getNome() + " | R$" + item.getPreco() +
+                        " | Qtd: " + item.getQuantidade() +
+                        " | Fornecedor: " + item.getFornecedor().getNome());
+            } else {
+                System.out.println("Produto não encontrado.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Código inválido. Digite apenas números.");
         }
     }
+
 
     private void buscarPorFornecedor() {
         System.out.print("Nome do fornecedor: ");
@@ -149,9 +162,9 @@ public class MenuUsuario {
         if (lista.isEmpty()) {
             System.out.println("Nenhuma compra registrada.");
         } else {
-            for (Compra c : lista) {
-                System.out.println("Compra #" + c.getCodigo() + " | Data: " + c.getData());
-            }
+        	for (Compra c : lista) {
+        	    System.out.println("Compra #" + c.getCodigo() + " | Data: " + c.getData() + " | Status: " + c.getStatus());
+        	}
         }
     }
 
@@ -161,7 +174,7 @@ public class MenuUsuario {
         scanner.nextLine();
         Compra c = historico.buscarPorCodigo(codigo);
         if (c != null) {
-            System.out.println("Compra #" + c.getCodigo() + " em " + c.getData());
+        	System.out.println("Compra #" + c.getCodigo() + " | Data: " + c.getData() + " | Status: " + c.getStatus());
         } else {
             System.out.println("Compra não encontrada.");
         }
@@ -175,8 +188,65 @@ public class MenuUsuario {
             System.out.println("Nenhuma compra nesta data.");
         } else {
             for (Compra c : lista) {
-                System.out.println("Compra #" + c.getCodigo() + " | Data: " + c.getData());
+            	System.out.println("Compra #" + c.getCodigo() + " | Data: " + c.getData() + " | Status: " + c.getStatus());
             }
         }
     }
+    
+    private void cancelarCompra() {
+        List<Compra> compras = historico.listarCompras();
+        List<Compra> pendentes = new ArrayList<>();
+        for (Compra c : compras) {
+            if (c.podeCancelar()) {
+                pendentes.add(c);
+            }
+        }
+
+        if (pendentes.isEmpty()) {
+            System.out.println("Nenhuma compra disponível para cancelamento.");
+            return;
+        }
+
+        System.out.println("Compras pendentes:");
+        for (Compra c : pendentes) {
+            System.out.println("Código: " + c.getCodigo() + " | Data: " + c.getData());
+        }
+
+        System.out.print("Digite o código da compra a cancelar: ");
+        int codigo = scanner.nextInt();
+        scanner.nextLine();
+
+        Compra compra = historico.buscarPorCodigo(codigo);
+        if (compra != null && compra.podeCancelar()) {
+            for (ItemCarrinho ic : compra.getItens()) {
+                ItemFornecedorProduto itemEstoque = loja.buscarPorCodigo(ic.getItem().getProduto().getCodigo());
+                if (itemEstoque != null) {
+                    itemEstoque.setQuantidade(itemEstoque.getQuantidade() + ic.getQuantidade());
+                }
+            }
+
+            compra.cancelar();
+            System.out.println("Compra cancelada com sucesso. Estoque restaurado.");
+        } else {
+            System.out.println("Compra não encontrada ou não pode mais ser cancelada.");
+        }
+    }
+
+    private void removerItemCarrinho() {
+        System.out.print("Código do produto a remover: ");
+        int codigo = scanner.nextInt();
+        scanner.nextLine();
+        carrinho.removerItem(codigo);
+    }
+
+    private void aumentarQuantidadeCarrinho() {
+        System.out.print("Código do produto: ");
+        int codigo = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Quantidade a adicionar: ");
+        int qtd = scanner.nextInt();
+        scanner.nextLine();
+        carrinho.aumentarQuantidade(codigo, qtd, loja);
+    }
+
 }

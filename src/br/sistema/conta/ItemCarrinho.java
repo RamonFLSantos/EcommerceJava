@@ -4,6 +4,9 @@ public class ItemCarrinho {
     private ItemFornecedorProduto item;
     private int quantidade;
 
+    public ItemCarrinho() {
+    }
+
     public ItemCarrinho(ItemFornecedorProduto item, int quantidade) {
         this.item = item;
         this.quantidade = quantidade;
@@ -13,7 +16,15 @@ public class ItemCarrinho {
         return item;
     }
 
+    public void setItem(ItemFornecedorProduto item) {
+        this.item = item;
+    }
+
     public int getQuantidade() {
         return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
     }
 }

@@ -1,13 +1,20 @@
 package br.sistema.conta;
 
+import br.sistema.persistencia.PersistenciaCompra;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HistoricoCompras {
-    private List<Compra> compras = new ArrayList<>();
+    private List<Compra> compras;
+
+    public HistoricoCompras() {
+        this.compras = PersistenciaCompra.carregarCompras();
+    }
 
     public void registrarCompra(Compra compra) {
         compras.add(compra);
+        salvar();
     }
 
     public List<Compra> listarCompras() {
@@ -29,5 +36,9 @@ public class HistoricoCompras {
             }
         }
         return resultado;
+    }
+
+    private void salvar() {
+        PersistenciaCompra.salvarCompras(new ArrayList<>(compras));
     }
 }

@@ -6,6 +6,9 @@ public class ItemFornecedorProduto {
     private double preco;
     private int quantidade;
 
+    public ItemFornecedorProduto() {
+    }
+
     public ItemFornecedorProduto(Produto produto, Fornecedor fornecedor, double preco, int quantidade) {
         this.produto = produto;
         this.fornecedor = fornecedor;
@@ -17,8 +20,16 @@ public class ItemFornecedorProduto {
         return produto;
     }
 
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
+
     public Fornecedor getFornecedor() {
         return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
     }
 
     public double getPreco() {

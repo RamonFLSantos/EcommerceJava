@@ -1,12 +1,20 @@
 package br.sistema.conta;
 
+import br.sistema.persistencia.PersistenciaItemProduto;
+import br.sistema.persistencia.PersistenciaProduto;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Loja {
     private List<Fornecedor> fornecedores = new ArrayList<>();
-    private List<Produto> produtos = new ArrayList<>();
-    private List<ItemFornecedorProduto> estoque = new ArrayList<>();
+    private List<Produto> produtos;
+    private List<ItemFornecedorProduto> estoque;
+
+    public Loja() {
+        this.produtos = PersistenciaProduto.carregarProdutos();
+        this.estoque = PersistenciaItemProduto.carregarEstoque();
+    }
 
     public void adicionarFornecedor(Fornecedor f) {
         if (!fornecedores.contains(f)) {
@@ -21,6 +29,7 @@ public class Loja {
     public void adicionarProduto(Produto p) {
         if (!produtos.contains(p)) {
             produtos.add(p);
+            PersistenciaProduto.salvarProdutos(new ArrayList<>(produtos)); 
         }
     }
 
@@ -30,6 +39,7 @@ public class Loja {
 
     public void adicionarItem(ItemFornecedorProduto item) {
         estoque.add(item);
+        salvarEstoque();
     }
 
     public List<ItemFornecedorProduto> listarItens() {
@@ -69,8 +79,13 @@ public class Loja {
         ItemFornecedorProduto item = buscarPorCodigo(codigo);
         if (item != null) {
             estoque.remove(item);
+            salvarEstoque();
             return true;
         }
         return false;
+    }
+
+    private void salvarEstoque() {
+        PersistenciaItemProduto.salvarEstoque(new ArrayList<>(estoque));
     }
 }
