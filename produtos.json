@@ -1,0 +1,9 @@
+[ {
+  "codigo" : 1,
+  "nome" : "Mouse Gamer",
+  "fornecedor" : null
+}, {
+  "codigo" : 2,
+  "nome" : "Teclado Mecânico",
+  "fornecedor" : null
+} ]

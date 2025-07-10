@@ -49,9 +49,9 @@ public class Loja {
     public List<ItemFornecedorProduto> buscarPorNome(String nome) {
         List<ItemFornecedorProduto> encontrados = new ArrayList<>();
         for (ItemFornecedorProduto item : estoque) {
-            if (item.getProduto().getNome().equalsIgnoreCase(nome)) {
-                encontrados.add(item);
-            }
+        	if (item.getProduto().getNome().toLowerCase().contains(nome.toLowerCase())) {
+        	    encontrados.add(item);
+        	}
         }
         return encontrados;
     }

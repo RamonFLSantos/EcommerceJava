@@ -1,0 +1,33 @@
+[ {
+  "produto" : {
+    "codigo" : 1,
+    "nome" : "Mouse Gamer",
+    "fornecedor" : null
+  },
+  "fornecedor" : {
+    "nome" : "Fornecedor Padrão",
+    "cnpj" : "12345678000199",
+    "senha" : null,
+    "endereco" : null,
+    "cep" : null,
+    "email" : null
+  },
+  "preco" : 120.0,
+  "quantidade" : 10
+}, {
+  "produto" : {
+    "codigo" : 2,
+    "nome" : "Teclado Mecânico",
+    "fornecedor" : null
+  },
+  "fornecedor" : {
+    "nome" : "Fornecedor Padrão",
+    "cnpj" : "12345678000199",
+    "senha" : null,
+    "endereco" : null,
+    "cep" : null,
+    "email" : null
+  },
+  "preco" : 250.0,
+  "quantidade" : 5
+} ]
